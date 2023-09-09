@@ -1,15 +1,17 @@
 ﻿// See https://aka.ms/new-console-template for more information
 Console.WriteLine("Hello, World!");
-var descriptor = Point.Descriptor;
+//var descriptor = Point.Descriptor;
+//descriptor.VisitProperties(new PrintVisitor<Point>());
+var descriptor = ReflectionDescriptorInfo.GetDescriptor<Point>();
 descriptor.VisitProperties(new PrintVisitor<Point>());
 
 struct PrintVisitor<TReceiver> : IPropertyVisitor<TReceiver>
 {
-    public void Visit<T>(IProperty<T, TReceiver> property)
-        where T : ITypeDescriptorProvider<T>
+    public void Visit<T, TProvider>(IProperty<T, TReceiver> property)
+        where TProvider : ITypeDescriptorProvider<T>
     {
         Console.WriteLine($"{property.Name}");
-        var desc = T.Descriptor;
+        var desc = TProvider.Descriptor;
         desc.VisitProperties(new PrintVisitor<T>());
     }
 }
