@@ -3,12 +3,12 @@ using TestTypes;
 
 // See https://aka.ms/new-console-template for more information
 Console.WriteLine("RefDesc");
-var refDesc = ReflectionProvider.GetShape<Point>();
+var refDesc = ReflectionShapeProvider.GetShape<Point>();
 Console.WriteLine(refDesc.Name);
 refDesc.VisitProperties(new PrintPropsVisitor<Point>());
 
 
-struct PrintPropsVisitor<TReceiver> : IPropertyVisitor<TReceiver>
+struct PrintPropsVisitor<TReceiver> : IPropertyVisitor
 {
     public void Visit<T>(ITypeShape<T> shape, IProperty property)
     {

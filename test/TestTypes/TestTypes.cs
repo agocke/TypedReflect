@@ -28,12 +28,12 @@ partial struct PointShape : ITypeShape<Point>
 {
     public string Name => "Point";
 
-    public void VisitFields<TVisitor>(TVisitor visitor) where TVisitor : IFieldVisitor<Point>
+    public void VisitFields<TVisitor>(TVisitor visitor) where TVisitor : IFieldVisitor
     {
     }
 
     public void VisitProperties<TVisitor>(TVisitor visitor)
-        where TVisitor : IPropertyVisitor<Point>
+        where TVisitor : IPropertyVisitor
     {
         visitor.Visit(IntWrap.Shape, new XProperty());
         visitor.Visit(SubPoint.Shape, new SubPointProperty());
@@ -41,12 +41,24 @@ partial struct PointShape : ITypeShape<Point>
     private struct XProperty : IProperty
     {
         public string Name => "X";
-        public int GetValue(Point p) => p.X;
+        IMethod? IProperty.GetMethod => new MethodShape(
+            isPublic: true,
+            method: new Func<Point, int>(GetX),
+            paramCount: 0,
+            invoke: (receiver, args) => GetX((Point)receiver!)
+        );
+        private static int GetX(Point p) => p.X;
     }
     private struct SubPointProperty : IProperty
     {
         public string Name => "Sub";
-        public SubPoint GetValue(Point p) => p.Sub;
+        IMethod? IProperty.GetMethod => new MethodShape(
+            isPublic: true,
+            method: new Func<Point, SubPoint>(GetSub),
+            paramCount: 0,
+            invoke: (receiver, args) => GetSub((Point)receiver!)
+        );
+        private static SubPoint GetSub(Point p) => p.Sub;
     }
 }
 
@@ -54,12 +66,12 @@ struct SubPointShape : ITypeShape<SubPoint>
 {
     public string Name => "SubPoint";
 
-    public void VisitFields<TVisitor>(TVisitor visitor) where TVisitor : IFieldVisitor<SubPoint>
+    public void VisitFields<TVisitor>(TVisitor visitor) where TVisitor : IFieldVisitor
     {
     }
 
     public void VisitProperties<TVisitor>(TVisitor visitor)
-        where TVisitor : IPropertyVisitor<SubPoint>
+        where TVisitor : IPropertyVisitor
     {
         visitor.Visit(IntWrap.Shape, new AProperty());
         visitor.Visit(StringWrap.Shape, new BProperty());
@@ -67,13 +79,41 @@ struct SubPointShape : ITypeShape<SubPoint>
     private struct AProperty : IProperty
     {
         public string Name => "A";
-        public int GetValue(SubPoint p) => p.A;
+        IMethod? IProperty.GetMethod => new MethodShape(
+            isPublic: true,
+            method: new Func<SubPoint, int>(GetA),
+            paramCount: 0,
+            invoke: (receiver, args) => GetA((SubPoint)receiver!)
+        );
+
+        private static int GetA(SubPoint p) => p.A;
     }
     private struct BProperty : IProperty
     {
         public string Name => "B";
-        public string GetValue(SubPoint p) => p.B;
+        IMethod? IProperty.GetMethod => new MethodShape(
+            isPublic: true,
+            method: GetB,
+            paramCount: 0,
+            invoke: (receiver, args) => GetB((SubPoint)receiver!)
+        );
+        private static string GetB(SubPoint p) => p.B;
     }
+}
+
+sealed class MethodShape(
+    bool isPublic,
+    Delegate method,
+    int paramCount,
+    Func<object?, object?[]?, object?> invoke) : IMethod
+{
+    bool IMethod.IsPublic => isPublic;
+
+    Delegate IMethod.Method => method;
+
+    int IMethod.ParameterCount => paramCount;
+
+    object? IMethod.Invoke(object? receiver, params object?[]? args) => invoke(receiver, args);
 }
 
 public struct TupleShapeProvider<T1, T2, T1Provider, T2Provider> : ITypeShapeProvider<(T1, T2)>

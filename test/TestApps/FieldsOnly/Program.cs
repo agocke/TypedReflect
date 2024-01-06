@@ -5,10 +5,10 @@ using TestTypes;
 
 Console.WriteLine();
 Console.WriteLine("Tuple desc:");
-var desc2 = TupleShapeProvider<int, SubPoint, IntWrap, SubPoint>.Shape;
-desc2.VisitFields(new PrintFieldsVisitor<(int, SubPoint)>());
+var shape = TupleShapeProvider<int, SubPoint, IntWrap, SubPoint>.Shape;
+shape.VisitFields(new PrintFieldsVisitor<(int, SubPoint)>());
 
-struct PrintFieldsVisitor<TReceiver> : IFieldVisitor<TReceiver>
+struct PrintFieldsVisitor<TReceiver> : IFieldVisitor
 {
     public void Visit<T>(ITypeShape<T> shape, IField property)
     {

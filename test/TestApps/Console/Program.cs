@@ -12,7 +12,7 @@ var shape = TupleShapeProvider<int, SubPoint, IntWrap, SubPoint>.Shape;
 shape.VisitProperties(new PrintPropsVisitor<(int, SubPoint)>());
 shape.VisitFields(new PrintFieldsVisitor<(int, SubPoint)>());
 
-struct PrintPropsVisitor<TReceiver> : IPropertyVisitor<TReceiver>
+struct PrintPropsVisitor<TReceiver> : IPropertyVisitor
 {
     public void Visit<T>(ITypeShape<T> shape, IProperty property)
     {
@@ -21,7 +21,7 @@ struct PrintPropsVisitor<TReceiver> : IPropertyVisitor<TReceiver>
     }
 }
 
-struct PrintFieldsVisitor<TReceiver> : IFieldVisitor<TReceiver>
+struct PrintFieldsVisitor<TReceiver> : IFieldVisitor
 {
     public void Visit<T>(ITypeShape<T> shape, IField field)
     {
