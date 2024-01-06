@@ -1,25 +1,9 @@
 
-using System;
 using System.Reflection;
 
-public static class ReflectionDescriptorInfo
-{
-    public static ITypeDescriptor<T> GetDescriptor<T>()
-    {
-        if (typeof(T).IsPrimitive || typeof(T) == typeof(string))
-        {
-            return new PrimitiveDescriptor<T>(typeof(T).Name);
-        }
-        return new ReflectionDescriptor<T>();
-    }
-}
+namespace TypedReflect;
 
-internal class ReflectionDescriptorProvider<T> : ITypeDescriptorProvider<T>
-{
-    public static ITypeDescriptor<T> Descriptor => ReflectionDescriptorInfo.GetDescriptor<T>();
-}
-
-internal class ReflectionDescriptor<T> : ITypeDescriptor<T>
+internal sealed class ReflectionDescriptor<T> : ITypeShape<T>
 {
     public string Name => typeof(T).Name;
     public void VisitProperties<TVisitor>(TVisitor visitor)
@@ -43,19 +27,23 @@ internal class ReflectionDescriptor<T> : ITypeDescriptor<T>
         }
     }
 
+    public void VisitConstructors<TVisitor>(TVisitor visitor)
+        where TVisitor : IConstructorVisitor<T>
+    {
+        var baseVisitMethod = typeof(TVisitor).GetMethod("Visit")!;
+        var ctors = typeof(T).GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+        foreach (var ctor in ctors)
+        {
+        }
+    }
+
     private static void VisitMember(MethodInfo visitMethod, object visitor, MemberInfo member, Type memberType)
     {
         visitMethod = visitMethod
-            .MakeGenericMethod(memberType, typeof(ReflectionDescriptorProvider<>).MakeGenericType(memberType));
+            .MakeGenericMethod(memberType, typeof(ReflectionShapeProvider<>).MakeGenericType(memberType));
         var makeProperty = typeof(ReflectionProperty<,>)
             .MakeGenericType(memberType, typeof(T));
         var refProperty = makeProperty.GetConstructor(new[] { typeof(PropertyInfo) })!.Invoke(new[] { member });
         visitMethod.Invoke(visitor, new[] { refProperty });
     }
-}
-
-internal readonly struct ReflectionProperty<T, TReceiver>(PropertyInfo p) : IProperty<T, TReceiver>
-{
-    public string Name => p.Name;
-    public T GetValue(TReceiver obj) => (T)p.GetValue(obj);
 }
