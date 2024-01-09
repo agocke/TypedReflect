@@ -15,6 +15,9 @@ internal sealed class ReflectionShape<T> : ITypeShape<T>
     private ReflectionShape() { }
 
     public string Name => typeof(T).Name;
+
+    bool ITypeShape<T>.IsPublic => typeof(T).IsPublic;
+
     void ITypeShape<T>.VisitProperties<TVisitor>(TVisitor visitor)
     {
         var visitMethod = typeof(IPropertyVisitor).GetMethod("Visit")!;

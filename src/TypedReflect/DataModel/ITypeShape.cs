@@ -12,6 +12,8 @@ public interface ITypeShapeProvider<TReceiver>
 public interface ITypeShape<TReceiver>
 {
     string Name { get; }
+    string? FullName => typeof(TReceiver).FullName;
+    bool IsPublic { get; }
 
     public ImmutableArray<IConstructor> GetConstructors(BindingFlags flags)
     {
@@ -58,6 +60,10 @@ public interface ITypeShape<TReceiver>
     public void VisitElementType<TVisitor>(TVisitor visitor)
         where TVisitor : ITypeVisitor
     { }
+
+    void VisitInterfaces(ITypeVisitor ifaceVisitor)
+    { }
+
     public bool IsArray => false;
 }
 
@@ -68,6 +74,8 @@ public interface ITypeVisitor
 
 public record class PrimitiveShape<T>() : ITypeShape<T>
 {
+    bool ITypeShape<T>.IsPublic => true;
+
     string ITypeShape<T>.Name => typeof(T).Name;
 
     void ITypeShape<T>.VisitFields<TVisitor>(TVisitor visitor)
