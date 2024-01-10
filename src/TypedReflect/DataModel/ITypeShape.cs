@@ -42,6 +42,9 @@ public interface ITypeShape<TReceiver>
     public void VisitBaseType<TVisitor>(TVisitor visitor)
         where TVisitor : ITypeVisitor
     { }
+    void VisitDeclaredProperties<TVisitor>(TVisitor visitor)
+        where TVisitor : IPropertyVisitor
+    { }
     public void VisitProperties<TVisitor>(TVisitor visitor)
         where TVisitor : IPropertyVisitor
     { }

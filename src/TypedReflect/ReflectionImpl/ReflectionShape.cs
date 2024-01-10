@@ -18,6 +18,16 @@ internal sealed class ReflectionShape<T> : ITypeShape<T>
 
     bool ITypeShape<T>.IsPublic => typeof(T).IsPublic;
 
+    void ITypeShape<T>.VisitDeclaredProperties<TVisitor>(TVisitor visitor)
+    {
+        var visitMethod = typeof(IPropertyVisitor).GetMethod("Visit")!;
+        var properties = typeof(T).GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+        foreach (var property in properties)
+        {
+            VisitMember(visitMethod, visitor, property, property.PropertyType);
+        }
+    }
+
     void ITypeShape<T>.VisitProperties<TVisitor>(TVisitor visitor)
     {
         var visitMethod = typeof(IPropertyVisitor).GetMethod("Visit")!;
