@@ -28,6 +28,8 @@ partial struct PointShape : ITypeShape<Point>
 {
     public string Name => "Point";
 
+    bool ITypeShape<Point>.IsPublic => true;
+
     public void VisitFields<TVisitor>(TVisitor visitor) where TVisitor : IFieldVisitor
     {
     }
@@ -64,6 +66,7 @@ partial struct PointShape : ITypeShape<Point>
 
 struct SubPointShape : ITypeShape<SubPoint>
 {
+    bool ITypeShape<SubPoint>.IsPublic => true;
     public string Name => "SubPoint";
 
     public void VisitFields<TVisitor>(TVisitor visitor) where TVisitor : IFieldVisitor
@@ -127,6 +130,7 @@ public struct TupleShape<T1, T2, T1Provider, T2Provider> : ITypeShape<(T1, T2)>
     where T1Provider : ITypeShapeProvider<T1>
     where T2Provider : ITypeShapeProvider<T2>
 {
+    bool ITypeShape<(T1, T2)>.IsPublic => true;
     string ITypeShape<(T1, T2)>.Name
     {
         get
